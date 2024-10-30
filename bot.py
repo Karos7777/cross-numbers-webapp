@@ -3,7 +3,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 import json
 import os
 
-TOKEN = '7211622201:AAFXjJYCoFbiDMTaOX5BZ_haXziiHxjOi7Y'
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
 
 user_scores = {}  # Хранение очков пользователей
 
