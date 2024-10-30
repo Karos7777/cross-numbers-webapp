@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const gameContainer = document.getElementById('game-container');
 
     let puzzle = null; // Кроссворд
-    let answers = {};  // Ответы пользователя
 
     startButton.addEventListener('click', function () {
         startGame();
@@ -19,59 +18,48 @@ document.addEventListener('DOMContentLoaded', function () {
         startButton.style.display = 'none';
     }
 
-  function generatePuzzle() {
-    const operators = ['+', '-', '*', '/'];
-    const gridSize = 5;
-    const grid = [];
+    function generatePuzzle() {
+        const operators = ['+', '-', '*', '/'];
+        const gridSize = 5;
+        const grid = [];
 
-    for (let i = 0; i < gridSize; i++) {
-        const row = [];
-        for (let j = 0; j < gridSize; j++) {
-            if (Math.random() < 0.2) { // 20% вероятность, что в клетке будет уравнение
-                const operator = operators[Math.floor(Math.random() * operators.length)];
-                let a, b, result;
+        for (let i = 0; i < gridSize; i++) {
+            const row = [];
+            for (let j = 0; j < gridSize; j++) {
+                if (Math.random() < 0.2) { // 20% вероятность, что в клетке будет уравнение
+                    const operator = operators[Math.floor(Math.random() * operators.length)];
+                    let a, b, result;
 
-                if (operator === '+') {
-                    a = getRandomInt(1, 50);
-                    b = getRandomInt(1, 50);
-                    result = a + b;
-                } else if (operator === '-') {
-                    a = getRandomInt(1, 50);
-                    b = getRandomInt(1, a); // чтобы результат был неотрицательным
-                    result = a - b;
-                } else if (operator === '*') {
-                    a = getRandomInt(1, 10);
-                    b = getRandomInt(1, 10);
-                    result = a * b;
-                } else if (operator === '/') {
-                    b = getRandomInt(1, 10);
-                    result = getRandomInt(1, 10);
-                    a = b * result;
+                    if (operator === '+') {
+                        a = getRandomInt(1, 50);
+                        b = getRandomInt(1, 50);
+                        result = a + b;
+                    } else if (operator === '-') {
+                        a = getRandomInt(1, 50);
+                        b = getRandomInt(1, a); // чтобы результат был неотрицательным
+                        result = a - b;
+                    } else if (operator === '*') {
+                        a = getRandomInt(1, 10);
+                        b = getRandomInt(1, 10);
+                        result = a * b;
+                    } else if (operator === '/') {
+                        b = getRandomInt(1, 10);
+                        result = getRandomInt(1, 10);
+                        a = b * result;
+                    }
+
+                    row.push({ clue: `${a} ${operator} ${b}`, answer: result.toString() });
+                } else {
+                    row.push({});
                 }
-
-                row.push({ clue: `${a} ${operator} ${b}`, answer: result.toString() });
-            } else {
-                row.push({});
             }
+            grid.push(row);
         }
-        grid.push(row);
-    }
-    return grid;
-}
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-        // Пример простого кроссворда 5x5
-        const grid = [
-            [{ clue: '2 + 3', answer: '5' }, {}, {}, {}, {}],
-            [{}, {}, {}, {}, {}],
-            [{}, {}, { clue: '4 * 2', answer: '8' }, {}, {}],
-            [{}, {}, {}, {}, {}],
-            [{}, {}, {}, {}, {}],
-        ];
         return grid;
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 
     function renderPuzzle(puzzle) {
@@ -86,8 +74,12 @@ function getRandomInt(min, max) {
                 if (cell.clue) {
                     const input = document.createElement('input');
                     input.type = 'text';
+                    input.placeholder = cell.clue; // Показываем уравнение внутри поля ввода
                     input.dataset.answer = cell.answer;
                     cellElement.appendChild(input);
+                } else {
+                    // Если клетка пустая, можно добавить пустой div или оставить ее пустой
+                    cellElement.classList.add('empty-cell');
                 }
                 gridElement.appendChild(cellElement);
             }
