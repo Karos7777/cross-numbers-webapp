@@ -7,83 +7,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const puzzles = [
         {
-            gridSize: 7,
-            clues: [
-                // Пазл 1
-                // Горизонтальные уравнения
-                { row: 0, col: 0, orientation: 'across', equation: 'A+B=9' },
-                { row: 2, col: 0, orientation: 'across', equation: 'C-D=3' },
-                { row: 4, col: 0, orientation: 'across', equation: 'E+F=7' },
-                // Вертикальные уравнения
-                { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
-                { row: 0, col: 2, orientation: 'down', equation: 'B/D=2' },
-                { row: 0, col: 4, orientation: 'down', equation: 'E-F=1' },
-            ],
-            answers: {
-                A: { value: 3, prefilled: false },
-                B: { value: 6, prefilled: false },
-                C: { value: 4, prefilled: false },
-                D: { value: 1, prefilled: false },
-                E: { value: 4, prefilled: false },
-                F: { value: 3, prefilled: false },
-            },
-        },
-        {
-            gridSize: 7,
-            clues: [
-                // Пазл 2
-                // Горизонтальные уравнения
-                { row: 0, col: 0, orientation: 'across', equation: 'G-H=1' },
-                { row: 2, col: 0, orientation: 'across', equation: 'I+J=10' },
-                { row: 4, col: 0, orientation: 'across', equation: 'K*L=16' },
-                // Вертикальные уравнения
-                { row: 0, col: 0, orientation: 'down', equation: 'G+I=9' },
-                { row: 0, col: 2, orientation: 'down', equation: 'H-J=1' },
-                { row: 0, col: 4, orientation: 'down', equation: 'K/L=2' },
-            ],
-            answers: {
-                G: { value: 5, prefilled: false },
-                H: { value: 4, prefilled: false },
-                I: { value: 4, prefilled: false },
-                J: { value: 6, prefilled: false },
-                K: { value: 8, prefilled: false },
-                L: { value: 2, prefilled: false },
-            },
-        },
-        {
-            gridSize: 5,
-            clues: [
-                // Горизонтальные уравнения
-                { row: 0, col: 0, orientation: 'across', equation: 'E+F=7' },
-                { row: 2, col: 0, orientation: 'across', equation: 'G-H=3' },
-                // Вертикальные уравнения
-                { row: 0, col: 0, orientation: 'down', equation: 'E*G=12' },
-                { row: 0, col: 2, orientation: 'down', equation: 'F+H=5' },
-            ],
-            answers: {
-                E: { value: 3, prefilled: true },
-                F: { value: 4, prefilled: false },
-                G: { value: 4, prefilled: false },
-                H: { value: 1, prefilled: true },
-            },
-        },
-        {
-            gridSize: 5,
-            clues: [
-                // Горизонтальные уравнения
-                { row: 0, col: 0, orientation: 'across', equation: 'A+B=5' },
-                { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
-                // Вертикальные уравнения
-                { row: 0, col: 0, orientation: 'down', equation: 'A*C=6' },
-                { row: 0, col: 2, orientation: 'down', equation: 'B+D=4' },
-            ],
-            answers: {
-                A: { value: 2, prefilled: true },
-                B: { value: 3, prefilled: false },
-                C: { value: 3, prefilled: false },
-                D: { value: 1, prefilled: true },
-            },
-        },
+            {
+    gridSize: 7,
+    clues: [
+        // Горизонтальные уравнения
+        { row: 0, col: 0, orientation: 'across', equation: 'A+B=8' },
+        { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
+        { row: 4, col: 0, orientation: 'across', equation: 'E+F=7' },
+        // Вертикальные уравнения
+        { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
+        { row: 0, col: 2, orientation: 'down', equation: 'B-D=3' },
+        { row: 0, col: 4, orientation: 'down', equation: 'E-F=1' },
+    ],
+    answers: {
+        A: { value: 3, prefilled: false },
+        B: { value: 5, prefilled: false },
+        C: { value: 4, prefilled: false },
+        D: { value: 2, prefilled: false },
+        E: { value: 4, prefilled: false },
+        F: { value: 3, prefilled: false },
+    },
+},
+
         // Добавьте больше пазлов по такому же шаблону
     ];
 
@@ -120,86 +65,88 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderPuzzle(puzzle) {
-        gameContainer.innerHTML = '';
-        const gridSize = puzzle.gridSize;
-        const grid = [];
+    gameContainer.innerHTML = '';
+    const gridSize = puzzle.gridSize;
+    const grid = [];
 
-        // Устанавливаем количество колонок в CSS
-        gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    // Устанавливаем количество колонок в CSS
+    gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
 
-        // Инициализируем пустую сетку
-        for (let i = 0; i < gridSize; i++) {
-            const row = [];
-            for (let j = 0; j < gridSize; j++) {
-                row.push(null);
-            }
-            grid.push(row);
-        }
-
-        // Располагаем уравнения на сетке
-        puzzle.clues.forEach(clue => {
-            const { row, col, orientation, equation } = clue;
-            let i = row;
-            let j = col;
-
-            for (let k = 0; k < equation.length; k++) {
-                const char = equation[k];
-
-                // Проверяем, что i и j находятся в пределах сетки
-                if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
-                    if (char.match(/[A-Z]/)) {
-                        // Это переменная (клетка с буквой)
-                        const answer = puzzle.answers[char];
-                        if (answer.prefilled) {
-                            // Предзаполненная клетка
-                            grid[i][j] = { type: 'prefilled', value: answer.value };
-                        } else {
-                            // Пустая клетка для ввода
-                            grid[i][j] = { type: 'input', variable: char };
-                        }
-                    } else if (char.trim() !== '') {
-                        // Это оператор или число
-                        grid[i][j] = { type: 'text', value: char };
-                    }
-                } else {
-                    console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
-                    break; // Прерываем цикл, если вышли за пределы
-                }
-
-                if (orientation === 'across') {
-                    j++;
-                } else {
-                    i++;
-                }
-            }
-        });
-
-        // Отображаем сетку
-        grid.forEach((row, rowIndex) => {
-            row.forEach((cell, colIndex) => {
-                const cellElement = document.createElement('div');
-                cellElement.className = 'cell';
-
-                if (cell) {
-                    if (cell.type === 'input') {
-                        cellElement.classList.add('input-cell');
-                        cellElement.dataset.variable = cell.variable;
-                        cellElement.addEventListener('click', selectCell);
-                    } else if (cell.type === 'prefilled') {
-                        cellElement.textContent = cell.value;
-                        cellElement.classList.add('prefilled-cell');
-                    } else if (cell.type === 'text') {
-                        cellElement.textContent = cell.value;
-                        cellElement.classList.add('operator');
-                    }
-                } else {
-                    cellElement.classList.add('empty-cell');
-                }
-
-                gameContainer.appendChild(cellElement);
-            });
-        });
+    // Инициализируем пустую сетку
+    for (let i = 0; i < gridSize; i++) {
+        const row = new Array(gridSize).fill(null);
+        grid.push(row);
     }
+
+    // Регулярное выражение для разбора уравнений
+    const tokenRegex = /([A-Z]+|\d+|[^\s])/g;
+
+    // Располагаем уравнения на сетке
+    puzzle.clues.forEach(clue => {
+        const { row, col, orientation, equation } = clue;
+        let i = row;
+        let j = col;
+
+        // Разбиваем уравнение на токены
+        const tokens = equation.match(tokenRegex);
+
+        tokens.forEach(token => {
+            // Проверяем, что i и j находятся в пределах сетки
+            if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
+                if (token.match(/^[A-Z]+$/)) {
+                    // Это переменная (клетка с буквой)
+                    const answer = puzzle.answers[token];
+                    if (answer.prefilled) {
+                        // Предзаполненная клетка
+                        grid[i][j] = { type: 'prefilled', value: answer.value };
+                    } else {
+                        // Пустая клетка для ввода
+                        grid[i][j] = { type: 'input', variable: token };
+                    }
+                } else if (token.trim() !== '') {
+                    // Это оператор или число
+                    grid[i][j] = { type: 'text', value: token };
+                }
+            } else {
+                console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
+                return; // Прерываем обработку этого уравнения
+            }
+
+            if (orientation === 'across') {
+                j++;
+            } else {
+                i++;
+            }
+        });
+    });
+
+    // Отображаем сетку
+    grid.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+            const cellElement = document.createElement('div');
+            cellElement.className = 'cell';
+
+            if (cell) {
+                if (cell.type === 'input') {
+                    cellElement.classList.add('input-cell');
+                    cellElement.dataset.variable = cell.variable;
+                    cellElement.addEventListener('click', selectCell);
+                } else if (cell.type === 'prefilled') {
+                    cellElement.textContent = cell.value;
+                    cellElement.classList.add('prefilled-cell');
+                } else if (cell.type === 'text') {
+                    cellElement.textContent = cell.value;
+                    cellElement.classList.add('operator');
+                }
+            } else {
+                cellElement.classList.add('empty-cell');
+            }
+
+            gameContainer.appendChild(cellElement);
+        });
+    });
+}
+
 
     function renderNumbers(numbers) {
         numberPanel.innerHTML = '';
