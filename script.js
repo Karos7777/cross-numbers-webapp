@@ -63,36 +63,131 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderPuzzle(puzzle) {
-        gameContainer.innerHTML = '';
-        const gridElement = document.createElement('div');
-        gridElement.className = 'grid';
+    gameContainer.innerHTML = '';
+    puzzle.forEach((row, rowIndex) => {
+        row.forEach((cell, cellIndex) => {
+            const cellElement = document.createElement('div');
+            cellElement.className = 'cell';
 
-        for (let row of puzzle) {
-            for (let cell of row) {
-                const cellElement = document.createElement('div');
-                cellElement.className = 'cell';
-                if (cell.clue) {
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.placeholder = cell.clue; // Показываем уравнение внутри поля ввода
-                    input.dataset.answer = cell.answer;
-                    cellElement.appendChild(input);
+            if (cell.type === 'operator') {
+                cellElement.textContent = cell.value;
+                cellElement.classList.add('operator');
+            } else if (cell.type === 'number') {
+                if (cell.value !== null) {
+                    cellElement.textContent = cell.value;
+                    cellElement.classList.add('number-cell');
                 } else {
-                    // Если клетка пустая, можно добавить пустой div или оставить ее пустой
-                    cellElement.classList.add('empty-cell');
+                    cellElement.classList.add('input-cell');
+                    cellElement.dataset.row = rowIndex;
+                    cellElement.dataset.col = cellIndex;
+                    cellElement.addEventListener('dragover', allowDrop);
+                    cellElement.addEventListener('drop', drop);
                 }
-                gridElement.appendChild(cellElement);
+            }
+
+            gameContainer.appendChild(cellElement);
+        });
+    });
+}
+
+    function generatePuzzle() {
+		
+    // Пример генерации фиксированного поля для демонстрации
+    // В реальном приложении нужно реализовать алгоритм генерации случайных уравнений
+
+    const grid = [
+        [{ type: 'number', value: null }, { type: 'operator', value: '+' }, { type: 'number', value: null }, { type: 'operator', value: '=' }, { type: 'number', value: 8 }],
+        [{ type: 'number', value: 5 }, { type: 'operator', value: '-' }, { type: 'number', value: null }, { type: 'operator', value: '=' }, { type: 'number', value: 2 }],
+        [{ type: 'number', value: null }, { type: 'operator', value: '*' }, { type: 'number', value: 2 }, { type: 'operator', value: '=' }, { type: 'number', value: null }],
+        // Добавьте больше строк по необходимости
+    ];
+    return grid;
+}
+
+    function generateNumbers(puzzle) {
+    const nums = [];
+    // Пройдём по полю и соберём все необходимые цифры
+    puzzle.forEach(row => {
+        row.forEach(cell => {
+            if (cell.type === 'number' && cell.value === null) {
+                // Для упрощения возьмём цифры от 1 до 9
+                nums.push(getRandomInt(1, 9));
+            }
+        });
+    });
+    return nums;
+}
+
+    function renderNumbers(numbers) {
+    numberPanel.innerHTML = '';
+    numbers.forEach((number, index) => {
+        const numberElement = document.createElement('div');
+        numberElement.className = 'number';
+        numberElement.textContent = number;
+        numberElement.draggable = true;
+        numberElement.dataset.number = number;
+        numberElement.dataset.index = index;
+        numberElement.addEventListener('dragstart', drag);
+        numberPanel.appendChild(numberElement);
+    });
+}
+
+    function drag(event) {
+    event.dataTransfer.setData('text', event.target.dataset.index);
+}
+
+    function allowDrop(event) {
+    event.preventDefault();
+}
+
+    function drop(event) {
+    event.preventDefault();
+    const numberIndex = event.dataTransfer.getData('text');
+    const numberValue = numbers[numberIndex];
+
+    // Устанавливаем значение в клетку
+    const row = event.target.dataset.row;
+    const col = event.target.dataset.col;
+    puzzle[row][col].value = numberValue;
+
+    // Удаляем цифру из панели
+    numbers.splice(numberIndex, 1);
+    renderNumbers(numbers);
+    renderPuzzle(puzzle);
+}
+
+    function checkSolution() {
+    let isCorrect = true;
+    // Пройдём по каждой строке и проверим уравнение
+    puzzle.forEach(row => {
+        // Составим уравнение из элементов строки
+        let equation = '';
+        row.forEach(cell => {
+            if (cell.type === 'number') {
+                if (cell.value !== null) {
+                    equation += cell.value;
+                } else {
+                    isCorrect = false; // Не все клетки заполнены
+                }
+            } else if (cell.type === 'operator') {
+                equation += ` ${cell.value} `;
+            }
+        });
+        // Проверим уравнение
+        if (isCorrect) {
+            try {
+                const [left, right] = equation.split('=');
+                if (eval(left) !== eval(right)) {
+                    isCorrect = false;
+                }
+            } catch (e) {
+                isCorrect = false;
             }
         }
+    });
+    return isCorrect;
+}
 
-        // Добавляем кнопку для проверки ответов
-        const checkButton = document.createElement('button');
-        checkButton.textContent = 'Проверить ответы';
-        checkButton.addEventListener('click', checkAnswers);
-
-        gameContainer.appendChild(gridElement);
-        gameContainer.appendChild(checkButton);
-    }
 
     function checkAnswers() {
         const inputs = document.querySelectorAll('input[data-answer]');

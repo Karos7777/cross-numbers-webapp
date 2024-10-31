@@ -26,10 +26,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Привет! Нажмите кнопку ниже, чтобы начать игру.", reply_markup=reply_markup)
 
+
 async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     data = update.message.web_app_data.data  # Получаем данные от Web App
-    load_data()
 
     try:
         # Парсим полученные данные
@@ -43,6 +43,8 @@ async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"Отличная работа! Вы получили 100 очков. Ваш общий счет: {user_scores[user_id]}")
     except json.JSONDecodeError:
         await update.message.reply_text("Ошибка при обработке данных от Web App.")
+
+
 
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
