@@ -7,28 +7,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const puzzles = [
         {
-            {
-    gridSize: 7,
-    clues: [
-        // Горизонтальные уравнения
-        { row: 0, col: 0, orientation: 'across', equation: 'A+B=8' },
-        { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
-        { row: 4, col: 0, orientation: 'across', equation: 'E+F=7' },
-        // Вертикальные уравнения
-        { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
-        { row: 0, col: 2, orientation: 'down', equation: 'B-D=3' },
-        { row: 0, col: 4, orientation: 'down', equation: 'E-F=1' },
-    ],
-    answers: {
-        A: { value: 3, prefilled: false },
-        B: { value: 5, prefilled: false },
-        C: { value: 4, prefilled: false },
-        D: { value: 2, prefilled: false },
-        E: { value: 4, prefilled: false },
-        F: { value: 3, prefilled: false },
-    },
-},
-
+            gridSize: 7,
+            clues: [
+                // Горизонтальные уравнения
+                { row: 0, col: 0, orientation: 'across', equation: 'A+B=8' },
+                { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
+                { row: 4, col: 0, orientation: 'across', equation: 'E+F=7' },
+                // Вертикальные уравнения
+                { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
+                { row: 0, col: 2, orientation: 'down', equation: 'B-D=3' },
+                { row: 0, col: 4, orientation: 'down', equation: 'E-F=1' },
+            ],
+            answers: {
+                A: { value: 3, prefilled: false },
+                B: { value: 5, prefilled: false },
+                C: { value: 4, prefilled: false },
+                D: { value: 2, prefilled: false },
+                E: { value: 4, prefilled: false },
+                F: { value: 3, prefilled: false },
+            },
+        },
         // Добавьте больше пазлов по такому же шаблону
     ];
 
@@ -65,88 +63,87 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderPuzzle(puzzle) {
-    gameContainer.innerHTML = '';
-    const gridSize = puzzle.gridSize;
-    const grid = [];
+        gameContainer.innerHTML = '';
+        const gridSize = puzzle.gridSize;
+        const grid = [];
 
-    // Устанавливаем количество колонок в CSS
-    gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        // Устанавливаем количество колонок в CSS
+        gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
 
-    // Инициализируем пустую сетку
-    for (let i = 0; i < gridSize; i++) {
-        const row = new Array(gridSize).fill(null);
-        grid.push(row);
-    }
+        // Инициализируем пустую сетку
+        for (let i = 0; i < gridSize; i++) {
+            const row = new Array(gridSize).fill(null);
+            grid.push(row);
+        }
 
-    // Регулярное выражение для разбора уравнений
-    const tokenRegex = /([A-Z]+|\d+|[^\s])/g;
+        // Регулярное выражение для разбора уравнений
+        const tokenRegex = /([A-Z]+|\d+|[^\s])/g;
 
-    // Располагаем уравнения на сетке
-    puzzle.clues.forEach(clue => {
-        const { row, col, orientation, equation } = clue;
-        let i = row;
-        let j = col;
+        // Располагаем уравнения на сетке
+        puzzle.clues.forEach(clue => {
+            const { row, col, orientation, equation } = clue;
+            let i = row;
+            let j = col;
 
-        // Разбиваем уравнение на токены
-        const tokens = equation.match(tokenRegex);
+            // Разбиваем уравнение на токены
+            const tokens = equation.match(tokenRegex);
 
-        tokens.forEach(token => {
-            // Проверяем, что i и j находятся в пределах сетки
-            if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
-                if (token.match(/^[A-Z]+$/)) {
-                    // Это переменная (клетка с буквой)
-                    const answer = puzzle.answers[token];
-                    if (answer.prefilled) {
-                        // Предзаполненная клетка
-                        grid[i][j] = { type: 'prefilled', value: answer.value };
-                    } else {
-                        // Пустая клетка для ввода
-                        grid[i][j] = { type: 'input', variable: token };
+            tokens.forEach(token => {
+                // Проверяем, что i и j находятся в пределах сетки
+                if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
+                    if (token.match(/^[A-Z]+$/)) {
+                        // Это переменная (клетка с буквой)
+                        const answer = puzzle.answers[token];
+                        if (answer.prefilled) {
+                            // Предзаполненная клетка
+                            grid[i][j] = { type: 'prefilled', value: answer.value };
+                        } else {
+                            // Пустая клетка для ввода
+                            grid[i][j] = { type: 'input', variable: token };
+                        }
+                    } else if (token.trim() !== '') {
+                        // Это оператор или число
+                        grid[i][j] = { type: 'text', value: token };
                     }
-                } else if (token.trim() !== '') {
-                    // Это оператор или число
-                    grid[i][j] = { type: 'text', value: token };
+                } else {
+                    console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
+                    return; // Прерываем обработку этого уравнения
                 }
-            } else {
-                console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
-                return; // Прерываем обработку этого уравнения
-            }
 
-            if (orientation === 'across') {
-                j++;
-            } else {
-                i++;
-            }
-        });
-    });
-
-    // Отображаем сетку
-    grid.forEach((row, rowIndex) => {
-        row.forEach((cell, colIndex) => {
-            const cellElement = document.createElement('div');
-            cellElement.className = 'cell';
-
-            if (cell) {
-                if (cell.type === 'input') {
-                    cellElement.classList.add('input-cell');
-                    cellElement.dataset.variable = cell.variable;
-                    cellElement.addEventListener('click', selectCell);
-                } else if (cell.type === 'prefilled') {
-                    cellElement.textContent = cell.value;
-                    cellElement.classList.add('prefilled-cell');
-                } else if (cell.type === 'text') {
-                    cellElement.textContent = cell.value;
-                    cellElement.classList.add('operator');
+                if (orientation === 'across') {
+                    j++;
+                } else {
+                    i++;
                 }
-            } else {
-                cellElement.classList.add('empty-cell');
-            }
-
-            gameContainer.appendChild(cellElement);
+            });
         });
-    });
-}
 
+        // Отображаем сетку
+        grid.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                const cellElement = document.createElement('div');
+                cellElement.className = 'cell';
+
+                if (cell) {
+                    if (cell.type === 'input') {
+                        cellElement.classList.add('input-cell');
+                        cellElement.dataset.variable = cell.variable;
+                        cellElement.addEventListener('click', selectCell);
+                    } else if (cell.type === 'prefilled') {
+                        cellElement.textContent = cell.value;
+                        cellElement.classList.add('prefilled-cell');
+                    } else if (cell.type === 'text') {
+                        cellElement.textContent = cell.value;
+                        cellElement.classList.add('operator');
+                    }
+                } else {
+                    cellElement.classList.add('empty-cell');
+                }
+
+                gameContainer.appendChild(cellElement);
+            });
+        });
+    }
 
     function renderNumbers(numbers) {
         numberPanel.innerHTML = '';
@@ -259,4 +256,3 @@ document.addEventListener('DOMContentLoaded', function () {
         startButton.style.display = 'block';
     }
 });
-
