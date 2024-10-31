@@ -2,6 +2,13 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext
 import json
 import os
+import logging
+
+# Настройка ведения журнала
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
 
@@ -55,4 +62,18 @@ async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.message.reply_text("Ошибка при обработке данных от Web App.")
 
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update
+    user_id = update.effective_user.id
+    score = get_user_score(user_id)
+    await update.message.reply_text(f"Ваш общий счет: {score}")
+
+def main():
+    application = Application.builder().token(TOKEN).build()
+
+    application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('score', score))
+    application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
+
+    application.run_polling()
+
+if __name__ == '__main__':
+    main()
