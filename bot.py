@@ -91,10 +91,6 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     current_score = get_user_score(user_id)
     logging.debug(f"User {user_id} requested their score: {current_score}")
     await update.message.reply_text(f"Ваш общий счет: {current_score}")
-    
-async def set_webhook(application):
-    await application.bot.set_webhook(f'{WEBHOOK_URL}/{TOKEN}')
-
 
 # Определяем пользовательский фильтр для web_app_data
 class WebAppDataFilter(BaseFilter):
@@ -103,20 +99,15 @@ class WebAppDataFilter(BaseFilter):
 
 web_app_data_filter = WebAppDataFilter()
 
-import asyncio
-
 def main():
+    global WEBHOOK_URL
+    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Замените на ваш ngrok URL
+
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(MessageHandler(web_app_data_filter, web_app_data))
-
-    global WEBHOOK_URL
-    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Ваш ngrok URL
-
-    # Устанавливаем вебхук
-    asyncio.run(set_webhook(application))
 
     # Запускаем бота с вебхуками
     application.run_webhook(
@@ -125,7 +116,6 @@ def main():
         url_path=TOKEN,
         webhook_url=f'{WEBHOOK_URL}/{TOKEN}',
     )
-
 
 if __name__ == '__main__':
     main()
