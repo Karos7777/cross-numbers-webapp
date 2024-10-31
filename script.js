@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', function () {
         gameContainer.innerHTML = '';
         const gridSize = puzzle.gridSize;
         const grid = [];
+		
+		gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
 
         // Инициализируем пустую сетку
         for (let i = 0; i < gridSize; i++) {
