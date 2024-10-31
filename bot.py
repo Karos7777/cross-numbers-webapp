@@ -103,6 +103,9 @@ class WebAppDataFilter(BaseFilter):
 
 web_app_data_filter = WebAppDataFilter()
 
+async def handle_all_updates(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.debug(f"Received update: {update}")
+
 def main():
     global WEBHOOK_URL
     WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Замените на ваш ngrok URL
@@ -112,6 +115,9 @@ def main():
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(MessageHandler(web_app_data_filter, web_app_data))
+
+    # Добавляем универсальный обработчик
+    application.add_handler(MessageHandler(filters.ALL, handle_all_updates))
 
     # Запускаем бота с вебхуками
     application.run_webhook(
