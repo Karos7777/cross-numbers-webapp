@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
+TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
 
 user_scores = {}  # Хранение очков пользователей
 
@@ -45,8 +45,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Привет! Нажмите кнопку ниже, чтобы начать игру.", reply_markup=reply_markup)
 
-async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    data = update.effective_message.web_app_data.data  # Получаем данные от Web App
+async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    data = update.message.web_app_data.data  # Получаем данные от Web App
 
     try:
         # Парсим полученные данные
@@ -55,7 +56,6 @@ async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE
 
         if action == 'solved':
             # Начисляем очки пользователю
-            user_id = update.effective_user.id
             new_score = update_score(user_id, 100)
             await update.message.reply_text(f"Отличная работа! Вы получили 100 очков. Ваш общий счет: {new_score}")
     except json.JSONDecodeError:
@@ -63,15 +63,15 @@ async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    score = get_user_score(user_id)
-    await update.message.reply_text(f"Ваш общий счет: {score}")
+    current_score = get_user_score(user_id)
+    await update.message.reply_text(f"Ваш общий счет: {current_score}")
 
 def main():
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
-    application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
+    application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
 
     application.run_polling()
 
