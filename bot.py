@@ -34,6 +34,7 @@ def save_data():
         json.dump(user_scores, f)
         logging.debug("Data saved to user_scores.json")
 
+
 def update_score(user_id, points):
     user_id = str(user_id)
     logging.debug(f"Updating score for user {user_id} by {points} points")
@@ -82,9 +83,12 @@ async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             new_score = update_score(user_id, 100)
             logging.debug(f"New score for user {user_id}: {new_score}")
             await update.message.reply_text(f"Отличная работа! Вы получили 100 очков. Ваш общий счет: {new_score}")
+        else:
+            logging.debug(f"Unknown action: {action}")
     except json.JSONDecodeError as e:
         logging.error(f"JSON Decode Error: {e}")
         await update.message.reply_text("Ошибка при обработке данных от Web App.")
+
 
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -116,6 +120,7 @@ def main():
         url_path=TOKEN,
         webhook_url=f'{WEBHOOK_URL}/{TOKEN}',
     )
+
 
 if __name__ == '__main__':
     main()

@@ -261,6 +261,17 @@ document.addEventListener('DOMContentLoaded', function () {
     return isCorrect;
 }
 
+function sendSolvedData() {
+    const data = { action: 'solved' };
+    console.log('Sending data to bot:', data);
+    tg.sendData(JSON.stringify(data));
+}
+
+// Вызовите эту функцию после проверки решения
+if (isSolutionCorrect()) {
+    sendSolvedData();
+}
+
 
     function resetGame() {
         gameContainer.innerHTML = '';
