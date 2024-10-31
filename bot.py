@@ -1,6 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, CallbackContext
-from telegram.ext.filters import BaseFilter
+from telegram.ext import filters
 import json
 import os
 import logging
@@ -34,7 +34,6 @@ def save_data():
         json.dump(user_scores, f)
         logging.debug("Data saved to user_scores.json")
 
-
 def update_score(user_id, points):
     user_id = str(user_id)
     logging.debug(f"Updating score for user {user_id} by {points} points")
@@ -64,10 +63,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.debug("web_app_data called")
 
-    if update.message.web_app_data is None:
-        logging.debug("No web_app_data found in the message.")
-        return  # Игнорируем сообщения без web_app_data
-
     user_id = update.effective_user.id
     data = update.message.web_app_data.data  # Получаем данные от Web App
     logging.debug(f"Received data: {data} from user: {user_id}")
@@ -89,32 +84,24 @@ async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.error(f"JSON Decode Error: {e}")
         await update.message.reply_text("Ошибка при обработке данных от Web App.")
 
-
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     current_score = get_user_score(user_id)
     logging.debug(f"User {user_id} requested their score: {current_score}")
     await update.message.reply_text(f"Ваш общий счет: {current_score}")
 
-# Определяем пользовательский фильтр для web_app_data
-class WebAppDataFilter(BaseFilter):
-    async def __call__(self, message):
-        return message.web_app_data is not None
-
-web_app_data_filter = WebAppDataFilter()
-
 async def handle_all_updates(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.debug(f"Received update: {update}")
 
 def main():
     global WEBHOOK_URL
-    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Замените на ваш ngrok URL
+    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app '  # Замените на ваш ngrok URL
 
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
-    application.add_handler(MessageHandler(web_app_data_filter, web_app_data))
+    application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
 
     # Добавляем универсальный обработчик
     application.add_handler(MessageHandler(filters.ALL, handle_all_updates))
@@ -126,7 +113,6 @@ def main():
         url_path=TOKEN,
         webhook_url=f'{WEBHOOK_URL}/{TOKEN}',
     )
-
 
 if __name__ == '__main__':
     main()
