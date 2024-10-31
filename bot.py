@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
 
 user_scores = {}  # Хранение очков пользователей
 
