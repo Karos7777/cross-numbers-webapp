@@ -60,6 +60,22 @@ def main():
     application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
 
     application.run_polling()
+    
+def handle_web_app_data(update: Update, context: CallbackContext):
+    query = update.callback_query
+    data = update.effective_message.web_app_data.data
+
+    if data == '{"action":"solved"}':
+        user_id = update.effective_user.id
+        new_score = update_score(user_id, 100)
+        query.answer('Ваши очки обновлены!')
+        context.bot.send_message(chat_id=user_id, text=f'Ваши новые очки: {new_score}')
+
+def get_score(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    score = get_user_score(user_id)
+    update.message.reply_text(f'Ваши очки: {score}')
+    
 
 if __name__ == '__main__':
     main()
