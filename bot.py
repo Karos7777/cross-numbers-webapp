@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, CallbackContext, MessageFilter
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, CallbackContext
+from telegram.ext.filters import BaseFilter
 import json
 import os
 import logging
@@ -10,7 +11,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
+TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
 
 user_scores = {}  # Хранение очков пользователей
 
@@ -92,8 +93,8 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Ваш общий счет: {current_score}")
 
 # Определяем пользовательский фильтр для web_app_data
-class WebAppDataFilter(MessageFilter):
-    def filter(self, message):
+class WebAppDataFilter(BaseFilter):
+    async def __call__(self, message):
         return message.web_app_data is not None
 
 web_app_data_filter = WebAppDataFilter()
