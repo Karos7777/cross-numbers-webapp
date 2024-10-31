@@ -1,5 +1,5 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, CallbackContext
+ffrom telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler
 from telegram.ext import filters
 import json
 import os
@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш новый токен бота
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш токен
 
 user_scores = {}  # Хранение очков пользователей
 
@@ -100,12 +100,13 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.debug(f"User {user_id} requested their score: {current_score}")
     await update.message.reply_text(f"Ваш общий счет: {current_score}")
 
-async def handle_all_updates(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logging.debug(f"Received update: {update}")
+# Добавляем функцию echo
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.debug(f"Received message: {update.message.text}")
+    await update.message.reply_text(f"Вы написали: {update.message.text}")
 
 def main():
-    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Замените на ваш ngrok URL
-
+    logging.debug("Bot is starting...")
     load_data()  # Загружаем данные при запуске бота
 
     application = Application.builder().token(TOKEN).build()
@@ -115,14 +116,8 @@ def main():
     application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    # Запускаем бота с использованием вебхука
-    application.run_webhook(
-        listen='0.0.0.0',
-        port=8443,
-        url_path='webhook',  # Уникальный путь для безопасности
-        webhook_url=f'{WEBHOOK_URL}/webhook',  # Публичный URL с добавлением пути
-    )
-
+    # Запускаем бота с использованием polling или вебхуков
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
