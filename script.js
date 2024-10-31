@@ -202,52 +202,64 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function checkSolution() {
-        const userAnswers = {};
-        const inputCells = document.querySelectorAll('.input-cell');
+    const userAnswers = {};
+    const inputCells = document.querySelectorAll('.input-cell');
 
-        // Получаем ответы пользователя
-        inputCells.forEach(cell => {
-            const variable = cell.dataset.variable;
-            const value = cell.dataset.value;
-            if (value) {
-                userAnswers[variable] = parseInt(value);
-            }
-        });
-
-        // Добавляем предзаполненные ответы
-        Object.keys(currentPuzzle.answers).forEach(variable => {
-            const answer = currentPuzzle.answers[variable];
-            if (answer.prefilled) {
-                userAnswers[variable] = answer.value;
-            }
-        });
-
-        // Проверяем, все ли переменные заполнены
-        if (Object.keys(userAnswers).length !== Object.keys(currentPuzzle.answers).length) {
-            return false;
+    // Получаем ответы пользователя
+    inputCells.forEach(cell => {
+        const variable = cell.dataset.variable;
+        const value = cell.dataset.value;
+        if (value) {
+            userAnswers[variable] = parseInt(value);
         }
+    });
 
-        // Проверяем уравнения
-        let isCorrect = true;
-        currentPuzzle.clues.forEach(clue => {
-            const { equation } = clue;
-            let userEquation = equation;
-            Object.keys(userAnswers).forEach(variable => {
-                userEquation = userEquation.replace(new RegExp(variable, 'g'), userAnswers[variable]);
-            });
+    // Добавляем предзаполненные ответы
+    Object.keys(currentPuzzle.answers).forEach(variable => {
+        const answer = currentPuzzle.answers[variable];
+        if (answer.prefilled) {
+            userAnswers[variable] = answer.value;
+        }
+    });
 
-            try {
-                const [left, right] = userEquation.split('=');
+    // Проверяем, все ли переменные заполнены
+    if (Object.keys(userAnswers).length !== Object.keys(currentPuzzle.answers).length) {
+        return false;
+    }
+
+    // Проверяем уравнения
+    let isCorrect = true;
+    currentPuzzle.clues.forEach(clue => {
+        const { equation } = clue;
+        let userEquation = equation;
+        Object.keys(userAnswers).forEach(variable => {
+            const regex = new RegExp(`\\b${variable}\\b`, 'g');
+            userEquation = userEquation.replace(regex, userAnswers[variable]);
+        });
+
+        try {
+            // Разбиваем уравнение по знаку "="
+            const [left, right] = userEquation.split('=');
+
+            if (left !== undefined && right !== undefined) {
+                // Проверяем обе стороны уравнения
                 if (eval(left) !== eval(right)) {
                     isCorrect = false;
                 }
-            } catch (e) {
-                isCorrect = false;
+            } else {
+                // Если нет знака "=", пытаемся вычислить выражение и проверить, что оно истинно (для уравнений без знака "=")
+                if (!eval(userEquation)) {
+                    isCorrect = false;
+                }
             }
-        });
+        } catch (e) {
+            isCorrect = false;
+        }
+    });
 
-        return isCorrect;
-    }
+    return isCorrect;
+}
+
 
     function resetGame() {
         gameContainer.innerHTML = '';

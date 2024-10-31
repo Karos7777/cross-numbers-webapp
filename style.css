@@ -75,3 +75,9 @@ button {
     padding: 10px 20px;
     margin: 10px;
 }
+
+button#startButton {
+    display: block;
+    margin: 20px auto;
+}
+
