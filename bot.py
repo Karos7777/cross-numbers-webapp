@@ -104,30 +104,25 @@ async def handle_all_updates(update: Update, context: ContextTypes.DEFAULT_TYPE)
     logging.debug(f"Received update: {update}")
 
 def main():
-    global WEBHOOK_URL
     WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Замените на ваш ngrok URL
 
-    load_data()  # Загружаем данные один раз при запуске бота
+    load_data()  # Загружаем данные при запуске бота
 
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    # Добавляем универсальный обработчик
-    application.add_handler(MessageHandler(filters.ALL, handle_all_updates))
+    # Запускаем бота с использованием вебхука
+    application.run_webhook(
+        listen='0.0.0.0',
+        port=8443,
+        url_path='webhook',  # Уникальный путь для безопасности
+        webhook_url=f'{WEBHOOK_URL}/webhook',  # Публичный URL с добавлением пути
+    )
 
-    # Запускаем бота с использованием polling (временно, если проблемы с вебхуками)
-    application.run_polling()
-
-    # Если вы хотите использовать вебхуки, убедитесь, что ваш WEBHOOK_URL корректен и доступен
-    # application.run_webhook(
-    #     listen='0.0.0.0',
-    #     port=8443,
-    #     url_path='webhook',  # Задайте уникальный путь
-    #     webhook_url=f'{WEBHOOK_URL}/webhook',  # Убедитесь, что токен не включён в URL
-    # )
 
 if __name__ == '__main__':
     main()
