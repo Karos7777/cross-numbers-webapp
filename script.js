@@ -62,107 +62,126 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function startGame() {
-        // Выбираем случайный пазл
-        const randomIndex = Math.floor(Math.random() * puzzles.length);
-        currentPuzzle = puzzles[randomIndex];
+    // Выбираем случайный пазл
+    const randomIndex = Math.floor(Math.random() * puzzles.length);
+    currentPuzzle = puzzles[randomIndex];
 
-        // Отображаем кроссворд
-        renderPuzzle(currentPuzzle);
+    // Отображаем кроссворд
+    renderPuzzle(currentPuzzle);
 
-        // Отображаем доступные цифры
-        numbers = Object.values(currentPuzzle.answers);
-        renderNumbers(numbers);
+    // Отображаем доступные цифры (только для непредзаполненных переменных)
+    numbers = [];
+    Object.keys(currentPuzzle.answers).forEach(key => {
+        const answer = currentPuzzle.answers[key];
+        if (!answer.prefilled) {
+            numbers.push(answer.value);
+        }
+    });
+    renderNumbers(numbers);
 
-        // Прячем кнопку "Начать игру"
-        startButton.style.display = 'none';
-        // Показываем кнопку "Проверить решение"
-        checkButton.style.display = 'block';
-    }
+    // Прячем кнопку "Начать игру"
+    startButton.style.display = 'none';
+    // Показываем кнопку "Проверить решение"
+    checkButton.style.display = 'block';
+}
+
 
     function renderPuzzle(puzzle) {
-        gameContainer.innerHTML = '';
-        const gridSize = puzzle.gridSize;
-        const grid = [];
-		
-		gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    gameContainer.innerHTML = '';
+    const gridSize = puzzle.gridSize;
+    const grid = [];
 
+    // Устанавливаем количество колонок в CSS
+    gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
 
-        // Инициализируем пустую сетку
-        for (let i = 0; i < gridSize; i++) {
-            const row = [];
-            for (let j = 0; j < gridSize; j++) {
-                row.push(null);
-            }
-            grid.push(row);
+    // Инициализируем пустую сетку
+    for (let i = 0; i < gridSize; i++) {
+        const row = [];
+        for (let j = 0; j < gridSize; j++) {
+            row.push(null);
         }
-
-        // Располагаем уравнения на сетке
-        puzzle.clues.forEach(clue => {
-            const { row, col, orientation, equation } = clue;
-            let i = row;
-            let j = col;
-
-            for (let k = 0; k < equation.length; k++) {
-                const char = equation[k];
-
-                // Проверяем, что i и j находятся в пределах сетки
-                if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
-                    if (char.match(/[A-Z]/)) {
-                        // Это переменная (пустая клетка)
-                        grid[i][j] = { type: 'input', variable: char };
-                    } else if (char.trim() !== '') {
-                        // Это оператор или число
-                        grid[i][j] = { type: 'text', value: char };
-                    }
-                } else {
-                    console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
-                    break; // Прерываем цикл, если вышли за пределы
-                }
-
-                if (orientation === 'across') {
-                    j++;
-                } else {
-                    i++;
-                }
-            }
-        });
-
-        // Отображаем сетку
-        grid.forEach((row, rowIndex) => {
-            row.forEach((cell, colIndex) => {
-                const cellElement = document.createElement('div');
-                cellElement.className = 'cell';
-
-                if (cell) {
-                    if (cell.type === 'input') {
-                        cellElement.classList.add('input-cell');
-                        cellElement.dataset.variable = cell.variable;
-                        cellElement.addEventListener('click', selectCell);
-                    } else if (cell.type === 'text') {
-                        cellElement.textContent = cell.value;
-                        cellElement.classList.add('operator');
-                    }
-                } else {
-                    cellElement.classList.add('empty-cell');
-                }
-
-                gameContainer.appendChild(cellElement);
-            });
-        });
+        grid.push(row);
     }
+
+    // Располагаем уравнения на сетке
+    puzzle.clues.forEach(clue => {
+        const { row, col, orientation, equation } = clue;
+        let i = row;
+        let j = col;
+
+        for (let k = 0; k < equation.length; k++) {
+            const char = equation[k];
+
+            // Проверяем, что i и j находятся в пределах сетки
+            if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
+                if (char.match(/[A-Z]/)) {
+                    // Это переменная (клетка с буквой)
+                    const answer = puzzle.answers[char];
+                    if (answer.prefilled) {
+                        // Предзаполненная клетка
+                        grid[i][j] = { type: 'prefilled', value: answer.value };
+                    } else {
+                        // Пустая клетка для ввода
+                        grid[i][j] = { type: 'input', variable: char };
+                    }
+                } else if (char.trim() !== '') {
+                    // Это оператор или число
+                    grid[i][j] = { type: 'text', value: char };
+                }
+            } else {
+                console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
+                break; // Прерываем цикл, если вышли за пределы
+            }
+
+            if (orientation === 'across') {
+                j++;
+            } else {
+                i++;
+            }
+        }
+    });
+
+    // Отображаем сетку
+    grid.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+            const cellElement = document.createElement('div');
+            cellElement.className = 'cell';
+
+            if (cell) {
+                if (cell.type === 'input') {
+                    cellElement.classList.add('input-cell');
+                    cellElement.dataset.variable = cell.variable;
+                    cellElement.addEventListener('click', selectCell);
+                } else if (cell.type === 'prefilled') {
+                    cellElement.textContent = cell.value;
+                    cellElement.classList.add('prefilled-cell');
+                } else if (cell.type === 'text') {
+                    cellElement.textContent = cell.value;
+                    cellElement.classList.add('operator');
+                }
+            } else {
+                cellElement.classList.add('empty-cell');
+            }
+
+            gameContainer.appendChild(cellElement);
+        });
+    });
+}
+
 
     function renderNumbers(numbers) {
-        numberPanel.innerHTML = '';
-        numbers.forEach((number, index) => {
-            const numberElement = document.createElement('div');
-            numberElement.className = 'number';
-            numberElement.textContent = number;
-            numberElement.dataset.number = number;
-            numberElement.dataset.index = index;
-            numberElement.addEventListener('click', selectNumber);
-            numberPanel.appendChild(numberElement);
-        });
-    }
+    numberPanel.innerHTML = '';
+    numbers.forEach((number, index) => {
+        const numberElement = document.createElement('div');
+        numberElement.className = 'number';
+        numberElement.textContent = number;
+        numberElement.dataset.number = number;
+        numberElement.dataset.index = index;
+        numberElement.addEventListener('click', selectNumber);
+        numberPanel.appendChild(numberElement);
+    });
+}
+
 
     function selectNumber(event) {
         // Убираем выделение с других цифр
@@ -208,43 +227,53 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function checkSolution() {
-        const userAnswers = {};
-        const inputCells = document.querySelectorAll('.input-cell');
+    const userAnswers = {};
+    const inputCells = document.querySelectorAll('.input-cell');
 
-        inputCells.forEach(cell => {
-            const variable = cell.dataset.variable;
-            const value = cell.dataset.value;
-            if (value) {
-                userAnswers[variable] = parseInt(value);
-            }
+    // Получаем ответы пользователя
+    inputCells.forEach(cell => {
+        const variable = cell.dataset.variable;
+        const value = cell.dataset.value;
+        if (value) {
+            userAnswers[variable] = parseInt(value);
+        }
+    });
+
+    // Добавляем предзаполненные ответы
+    Object.keys(currentPuzzle.answers).forEach(variable => {
+        const answer = currentPuzzle.answers[variable];
+        if (answer.prefilled) {
+            userAnswers[variable] = answer.value;
+        }
+    });
+
+    // Проверяем, все ли переменные заполнены
+    if (Object.keys(userAnswers).length !== Object.keys(currentPuzzle.answers).length) {
+        return false;
+    }
+
+    // Проверяем уравнения
+    let isCorrect = true;
+    currentPuzzle.clues.forEach(clue => {
+        const { equation } = clue;
+        let userEquation = equation;
+        Object.keys(userAnswers).forEach(variable => {
+            userEquation = userEquation.replace(new RegExp(variable, 'g'), userAnswers[variable]);
         });
 
-        // Проверяем, все ли переменные заполнены
-        if (Object.keys(userAnswers).length !== Object.keys(currentPuzzle.answers).length) {
-            return false;
-        }
-
-        // Проверяем уравнения
-        let isCorrect = true;
-        currentPuzzle.clues.forEach(clue => {
-            const { equation } = clue;
-            let userEquation = equation;
-            Object.keys(userAnswers).forEach(variable => {
-                userEquation = userEquation.replace(new RegExp(variable, 'g'), userAnswers[variable]);
-            });
-
-            try {
-                const [left, right] = userEquation.split('=');
-                if (eval(left) !== eval(right)) {
-                    isCorrect = false;
-                }
-            } catch (e) {
+        try {
+            const [left, right] = userEquation.split('=');
+            if (eval(left) !== eval(right)) {
                 isCorrect = false;
             }
-        });
+        } catch (e) {
+            isCorrect = false;
+        }
+    });
 
-        return isCorrect;
-    }
+    return isCorrect;
+}
+
 
     function resetGame() {
         gameContainer.innerHTML = '';
