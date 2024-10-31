@@ -28,12 +28,12 @@ body {
 
 .input-cell {
     background-color: #fff;
+    cursor: pointer;
+    border: 1px solid #333;
 }
 
-#number-panel {
-    margin: 20px auto;
-    display: flex;
-    justify-content: center;
+.input-cell.selected {
+    background-color: #e0e0e0;
 }
 
 .number {
@@ -42,9 +42,30 @@ body {
     border: 1px solid #333;
     margin: 0 5px;
     font-size: 24px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     background-color: #ddd;
     cursor: pointer;
+}
+
+.number.selected {
+    border: 2px solid #000;
+}
+
+#number-panel {
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+}
+
+.empty-cell {
+    background-color: #f0f0f0;
+    border: none;
+}
+
+button {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin: 10px;
 }
