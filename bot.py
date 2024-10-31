@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш новый токен бота
 
 user_scores = {}  # Хранение очков пользователей
 
@@ -22,22 +22,28 @@ DATA_FILE = os.path.join(BASE_DIR, 'user_scores.json')
 def load_data():
     global user_scores
     if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r') as f:
-            user_scores = json.load(f)
-            logging.debug("Data loaded from user_scores.json")
+        try:
+            with open(DATA_FILE, 'r') as f:
+                user_scores = json.load(f)
+                logging.debug("Data loaded from user_scores.json")
+        except Exception as e:
+            logging.error(f"Error loading data: {e}")
+            user_scores = {}
     else:
         user_scores = {}
         logging.debug("No existing data found, starting fresh")
 
 def save_data():
-    with open(DATA_FILE, 'w') as f:
-        json.dump(user_scores, f)
-        logging.debug("Data saved to user_scores.json")
+    try:
+        with open(DATA_FILE, 'w') as f:
+            json.dump(user_scores, f)
+            logging.debug("Data saved to user_scores.json")
+    except Exception as e:
+        logging.error(f"Error saving data: {e}")
 
 def update_score(user_id, points):
     user_id = str(user_id)
     logging.debug(f"Updating score for user {user_id} by {points} points")
-    load_data()
     current_score = user_scores.get(user_id, 0)
     new_score = current_score + points
     user_scores[user_id] = new_score
@@ -48,7 +54,6 @@ def update_score(user_id, points):
 def get_user_score(user_id):
     user_id = str(user_id)
     logging.debug(f"Getting score for user {user_id}")
-    load_data()
     score = user_scores.get(user_id, 0)
     logging.debug(f"Current score for user {user_id}: {score}")
     return score
@@ -64,6 +69,11 @@ async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.debug("web_app_data called")
 
     user_id = update.effective_user.id
+
+    if update.message.web_app_data is None:
+        logging.debug("No web_app_data found in the message.")
+        return
+
     data = update.message.web_app_data.data  # Получаем данные от Web App
     logging.debug(f"Received data: {data} from user: {user_id}")
 
@@ -94,23 +104,30 @@ async def handle_all_updates(update: Update, context: ContextTypes.DEFAULT_TYPE)
     logging.debug(f"Received update: {update}")
 
 def main():
-    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Ваш ngrok URL
+    global WEBHOOK_URL
+    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Замените на ваш ngrok URL
+
+    load_data()  # Загружаем данные один раз при запуске бота
 
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
+
+    # Добавляем универсальный обработчик
     application.add_handler(MessageHandler(filters.ALL, handle_all_updates))
 
-    # Изменяем url_path и webhook_url
-    application.run_webhook(
-        listen='0.0.0.0',
-        port=8443,
-        url_path='',  # Оставляем пустым или указываем кастомный путь
-        webhook_url=WEBHOOK_URL,  # Без включения токена
-    )
+    # Запускаем бота с использованием polling (временно, если проблемы с вебхуками)
+    application.run_polling()
 
+    # Если вы хотите использовать вебхуки, убедитесь, что ваш WEBHOOK_URL корректен и доступен
+    # application.run_webhook(
+    #     listen='0.0.0.0',
+    #     port=8443,
+    #     url_path='webhook',  # Задайте уникальный путь
+    #     webhook_url=f'{WEBHOOK_URL}/webhook',  # Убедитесь, что токен не включён в URL
+    # )
 
 if __name__ == '__main__':
     main()
