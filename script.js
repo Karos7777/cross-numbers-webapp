@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
         gridSize: 7,
         clues: [
             // Горизонтальные уравнения
-            { row: 0, col: 0, orientation: 'across', equation: 'A+B=9' }, // Длина 5
+            { row: 0, col: 0, orientation: 'across', equation: 'A+B=9' },
             { row: 2, col: 0, orientation: 'across', equation: 'C-D=3' },
             // Вертикальные уравнения
             { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     // Добавьте больше пазлов по такому же шаблону
 ];
+
 
 
     let currentPuzzle = null; // Текущий пазл
