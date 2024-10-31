@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext,
 import json
 import os
 import logging
@@ -94,9 +94,10 @@ def main():
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
-    application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
+    application.add_handler(MessageHandler(filters.WEB_APP_DATA, web_app_data))
 
     application.run_polling()
+
 
 
 if __name__ == '__main__':
