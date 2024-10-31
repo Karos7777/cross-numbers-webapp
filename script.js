@@ -6,29 +6,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const checkButton = document.getElementById('checkButton');
 
     const puzzles = [
-        {
-            gridSize: 7,
-            clues: [
-                // Горизонтальные уравнения
-                { row: 0, col: 0, orientation: 'across', equation: 'A+B=8' },
-                { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
-                { row: 4, col: 0, orientation: 'across', equation: 'E+F=7' },
-                // Вертикальные уравнения
-                { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
-                { row: 0, col: 2, orientation: 'down', equation: 'B-D=3' },
-                { row: 0, col: 4, orientation: 'down', equation: 'E-F=1' },
-            ],
-            answers: {
-                A: { value: 3, prefilled: false },
-                B: { value: 5, prefilled: false },
-                C: { value: 4, prefilled: false },
-                D: { value: 2, prefilled: false },
-                E: { value: 4, prefilled: false },
-                F: { value: 3, prefilled: false },
-            },
+    {
+        gridSize: 7,
+        clues: [
+            // Горизонтальные уравнения
+            { row: 0, col: 0, orientation: 'across', equation: 'A+B=8' },
+            { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
+            { row: 4, col: 0, orientation: 'across', equation: 'E+F=8' },
+            // Вертикальные уравнения
+            { row: 0, col: 0, orientation: 'down', equation: 'A*C=10' },
+            { row: 0, col: 2, orientation: 'down', equation: 'B-D=3' },
+            { row: 0, col: 4, orientation: 'down', equation: 'E-F=6' },
+        ],
+        answers: {
+            A: { value: 2, prefilled: false },
+            B: { value: 6, prefilled: false },
+            C: { value: 5, prefilled: false },
+            D: { value: 3, prefilled: false },
+            E: { value: 7, prefilled: false },
+            F: { value: 1, prefilled: false },
         },
-        // Добавьте больше пазлов по такому же шаблону
-    ];
+    },
+    // Добавьте больше пазлов по такому же шаблону
+];
+
 
     let currentPuzzle = null; // Текущий пазл
     let numbers = [];  // Доступные цифры
