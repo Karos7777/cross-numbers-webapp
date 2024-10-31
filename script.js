@@ -50,6 +50,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 L: 2,
             },
         },
+		{
+			
+    gridSize: 5,
+    clues: [
+        // Горизонтальные уравнения
+        { row: 0, col: 0, orientation: 'across', equation: 'E+F=7' },
+        { row: 2, col: 0, orientation: 'across', equation: 'G-H=3' },
+        // Вертикальные уравнения
+        { row: 0, col: 0, orientation: 'down', equation: 'E*G=12' },
+        { row: 0, col: 2, orientation: 'down', equation: 'F+H=5' },
+    ],
+    answers: {
+        E: { value: 3, prefilled: true },
+        F: { value: 4, prefilled: false },
+        G: { value: 4, prefilled: false },
+        H: { value: 1, prefilled: true },
+    },
+},
+ {
+        gridSize: 5,
+        clues: [
+            // Горизонтальные уравнения
+            { row: 0, col: 0, orientation: 'across', equation: 'A+B=5' },
+            { row: 2, col: 0, orientation: 'across', equation: 'C-D=2' },
+            // Вертикальные уравнения
+            { row: 0, col: 0, orientation: 'down', equation: 'A*C=6' },
+            { row: 0, col: 2, orientation: 'down', equation: 'B+D=4' },
+        ],
+        answers: {
+            A: { value: 2, prefilled: true },
+            B: { value: 3, prefilled: false },
+            C: { value: 3, prefilled: false },
+            D: { value: 1, prefilled: true },
+        },
+    },
+    // Добавьте больше пазлов по такому же шаблону
+];
         // Добавьте больше пазлов по такому же шаблону
     ];
 
