@@ -94,25 +94,23 @@ async def handle_all_updates(update: Update, context: ContextTypes.DEFAULT_TYPE)
     logging.debug(f"Received update: {update}")
 
 def main():
-    global WEBHOOK_URL
-    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app '  # Замените на ваш ngrok URL
+    WEBHOOK_URL = 'https://46c4-5-188-66-64.ngrok-free.app'  # Ваш ngrok URL
 
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('score', score))
     application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
-
-    # Добавляем универсальный обработчик
     application.add_handler(MessageHandler(filters.ALL, handle_all_updates))
 
-    # Запускаем бота с вебхуками
+    # Изменяем url_path и webhook_url
     application.run_webhook(
         listen='0.0.0.0',
         port=8443,
-        url_path=TOKEN,
-        webhook_url=f'{WEBHOOK_URL}/{TOKEN}',
+        url_path='',  # Оставляем пустым или указываем кастомный путь
+        webhook_url=WEBHOOK_URL,  # Без включения токена
     )
+
 
 if __name__ == '__main__':
     main()
