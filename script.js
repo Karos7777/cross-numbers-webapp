@@ -6,27 +6,52 @@ document.addEventListener('DOMContentLoaded', function () {
     const checkButton = document.getElementById('checkButton');
 
     const puzzles = [
-    {
-        gridSize: 7,
-        clues: [
-            // Горизонтальные уравнения
-            { row: 0, col: 0, orientation: 'across', equation: 'A+B=9' },
-            { row: 2, col: 0, orientation: 'across', equation: 'C-D=3' },
-            // Вертикальные уравнения
-            { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
-            { row: 0, col: 2, orientation: 'down', equation: 'B/D=2' },
-        ],
-        answers: {
-            A: 3,
-            B: 6,
-            C: 4,
-            D: 2,
+        {
+            gridSize: 7,
+            clues: [
+                // Пазл 1
+                // Горизонтальные уравнения
+                { row: 0, col: 0, orientation: 'across', equation: 'A+B=9' },
+                { row: 2, col: 0, orientation: 'across', equation: 'C-D=3' },
+                { row: 4, col: 0, orientation: 'across', equation: 'E+F=7' },
+                // Вертикальные уравнения
+                { row: 0, col: 0, orientation: 'down', equation: 'A*C=12' },
+                { row: 0, col: 2, orientation: 'down', equation: 'B/D=2' },
+                { row: 0, col: 4, orientation: 'down', equation: 'E-F=1' },
+            ],
+            answers: {
+                A: 3,
+                B: 6,
+                C: 4,
+                D: 1,
+                E: 4,
+                F: 3,
+            },
         },
-    },
-    // Добавьте больше пазлов по такому же шаблону
-];
-
-
+        {
+            gridSize: 7,
+            clues: [
+                // Пазл 2
+                // Горизонтальные уравнения
+                { row: 0, col: 0, orientation: 'across', equation: 'G-H=1' },
+                { row: 2, col: 0, orientation: 'across', equation: 'I+J=10' },
+                { row: 4, col: 0, orientation: 'across', equation: 'K*L=16' },
+                // Вертикальные уравнения
+                { row: 0, col: 0, orientation: 'down', equation: 'G+I=9' },
+                { row: 0, col: 2, orientation: 'down', equation: 'H-J=1' },
+                { row: 0, col: 4, orientation: 'down', equation: 'K/L=2' },
+            ],
+            answers: {
+                G: 5,
+                H: 4,
+                I: 4,
+                J: 6,
+                K: 8,
+                L: 2,
+            },
+        },
+        // Добавьте больше пазлов по такому же шаблону
+    ];
 
     let currentPuzzle = null; // Текущий пазл
     let numbers = [];  // Доступные цифры
@@ -55,74 +80,73 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderPuzzle(puzzle) {
-    gameContainer.innerHTML = '';
-    const gridSize = puzzle.gridSize;
-    const grid = [];
+        gameContainer.innerHTML = '';
+        const gridSize = puzzle.gridSize;
+        const grid = [];
 
-    // Инициализируем пустую сетку
-    for (let i = 0; i < gridSize; i++) {
-        const row = [];
-        for (let j = 0; j < gridSize; j++) {
-            row.push(null);
+        // Инициализируем пустую сетку
+        for (let i = 0; i < gridSize; i++) {
+            const row = [];
+            for (let j = 0; j < gridSize; j++) {
+                row.push(null);
+            }
+            grid.push(row);
         }
-        grid.push(row);
-    }
 
-    // Располагаем уравнения на сетке
-    puzzle.clues.forEach(clue => {
-        const { row, col, orientation, equation } = clue;
-        let i = row;
-        let j = col;
+        // Располагаем уравнения на сетке
+        puzzle.clues.forEach(clue => {
+            const { row, col, orientation, equation } = clue;
+            let i = row;
+            let j = col;
 
-        for (let k = 0; k < equation.length; k++) {
-            const char = equation[k];
+            for (let k = 0; k < equation.length; k++) {
+                const char = equation[k];
 
-            // Проверяем, что i и j находятся в пределах сетки
-            if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
-                if (char.match(/[A-Z]/)) {
-                    // Это переменная (пустая клетка)
-                    grid[i][j] = { type: 'input', variable: char };
-                } else if (char.trim() !== '') {
-                    // Это оператор или число
-                    grid[i][j] = { type: 'text', value: char };
+                // Проверяем, что i и j находятся в пределах сетки
+                if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
+                    if (char.match(/[A-Z]/)) {
+                        // Это переменная (пустая клетка)
+                        grid[i][j] = { type: 'input', variable: char };
+                    } else if (char.trim() !== '') {
+                        // Это оператор или число
+                        grid[i][j] = { type: 'text', value: char };
+                    }
+                } else {
+                    console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
+                    break; // Прерываем цикл, если вышли за пределы
                 }
-            } else {
-                console.error(`Выход за пределы сетки при размещении уравнения "${equation}" в позиции i=${i}, j=${j}`);
-                break; // Прерываем цикл, если вышли за пределы
-            }
 
-            if (orientation === 'across') {
-                j++;
-            } else {
-                i++;
-            }
-        }
-    });
-
-    // Отображаем сетку
-    grid.forEach((row, rowIndex) => {
-        row.forEach((cell, colIndex) => {
-            const cellElement = document.createElement('div');
-            cellElement.className = 'cell';
-
-            if (cell) {
-                if (cell.type === 'input') {
-                    cellElement.classList.add('input-cell');
-                    cellElement.dataset.variable = cell.variable;
-                    cellElement.addEventListener('click', selectCell);
-                } else if (cell.type === 'text') {
-                    cellElement.textContent = cell.value;
-                    cellElement.classList.add('operator');
+                if (orientation === 'across') {
+                    j++;
+                } else {
+                    i++;
                 }
-            } else {
-                cellElement.classList.add('empty-cell');
             }
-
-            gameContainer.appendChild(cellElement);
         });
-    });
-}
 
+        // Отображаем сетку
+        grid.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                const cellElement = document.createElement('div');
+                cellElement.className = 'cell';
+
+                if (cell) {
+                    if (cell.type === 'input') {
+                        cellElement.classList.add('input-cell');
+                        cellElement.dataset.variable = cell.variable;
+                        cellElement.addEventListener('click', selectCell);
+                    } else if (cell.type === 'text') {
+                        cellElement.textContent = cell.value;
+                        cellElement.classList.add('operator');
+                    }
+                } else {
+                    cellElement.classList.add('empty-cell');
+                }
+
+                gameContainer.appendChild(cellElement);
+            });
+        });
+    }
 
     function renderNumbers(numbers) {
         numberPanel.innerHTML = '';
@@ -173,6 +197,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Отправляем данные боту
             tg.sendData(JSON.stringify({ action: 'solved' }));
             alert('Поздравляем! Вы решили кроссворд и получили 100 очков.');
+            // Сброс игры для возможности сыграть снова
+            resetGame();
         } else {
             alert('Есть ошибки в вашем решении. Попробуйте еще раз.');
         }
@@ -216,4 +242,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         return isCorrect;
     }
+
+    function resetGame() {
+        gameContainer.innerHTML = '';
+        numberPanel.innerHTML = '';
+        checkButton.style.display = 'none';
+        startButton.style.display = 'block';
+    }
 });
+
