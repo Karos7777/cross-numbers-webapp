@@ -2,7 +2,7 @@ import logging
 import json
 import aiosqlite
 import nest_asyncio
-import sqlite3
+import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
@@ -18,18 +18,11 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+logging.basicConfig(level=logging.INFO)
+
 def add_points(user_id, points):
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT points FROM users WHERE id = ?', (user_id,))
-    result = cursor.fetchone()
-    if result:
-        new_points = result[0] + points
-        cursor.execute('UPDATE users SET points = ? WHERE id = ?', (new_points, user_id))
-    else:
-        cursor.execute('INSERT INTO users (id, points) VALUES (?, ?)', (user_id, points))
-    conn.commit()
-    conn.close()
+    logging.info(f"Начисление {points} баллов пользователю с ID {user_id}")
+    # остальной код функции
 
 # Инициализация базы данных
 async def init_db():
