@@ -20,6 +20,36 @@ user_scores = {}  # Хранение очков пользователей
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, 'user_scores.json')
 
+import json  # Убедитесь, что у вас импортирован json
+
+# Другой код бота, ваши команды, обработчики и т.д.
+
+@bot.message_handler(content_types=['web_app_data'])
+def web_app_data_handler(message):
+    data = json.loads(message.web_app_data.data)
+    if data.get("action") == "solved":
+        user_id = message.from_user.id
+        add_points(user_id, 100)  # Добавить 100 очков пользователю
+        bot.send_message(user_id, "Поздравляем! Вам начислено 100 очков.")
+
+# Добавьте функцию для добавления очков пользователю
+def add_points(user_id, points):
+    user_file = f"user_{user_id}.json"
+    if not os.path.exists(user_file):
+        # Создаем файл и добавляем начальные очки
+        with open(user_file, "w") as file:
+            json.dump({"points": points}, file)
+    else:
+        with open(user_file, "r+") as file:
+            data = json.load(file)
+            data["points"] += points
+            file.seek(0)
+            json.dump(data, file)
+
+# Запуск бота
+bot.polling()
+
+
 def load_data():
     global user_scores
     if os.path.exists(DATA_FILE):
