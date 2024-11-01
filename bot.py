@@ -125,7 +125,7 @@ def main():
     application.run_webhook(
         listen='0.0.0.0',
         port=8443,
-        url_path=WEBHOOK_PATH[1:https://09f6-82-115-61-199.ngrok-free.app -> http://localhost:8443 "],  # Убираем первый символ '/' из пути
+        url_path=WEBHOOK_PATH[1:https:/09f6-82-115-61-199.ngrok-free.app -> http://localhost:8443 "],  # Убираем первый символ '/' из пути
         webhook_url=WEBHOOK_URL,
     )
 
