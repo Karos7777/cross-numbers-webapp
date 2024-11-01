@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш токен
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш новый токен
 
 user_scores = {}  # Хранение очков пользователей
 
@@ -116,8 +116,18 @@ def main():
     application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    # Запускаем бота с использованием polling или вебхуков
-    application.run_polling()
+    # Настраиваем вебхук
+    WEBHOOK_HOST = 'https://09f6-82-115-61-199.ngrok-free.app'  # Замените на ваш ngrok URL
+    WEBHOOK_PATH = '/webhook'
+    WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+    # Запускаем бота с использованием вебхука
+    application.run_webhook(
+        listen='0.0.0.0',
+        port=8443,
+        url_path=WEBHOOK_PATH["C:\Project\cross-numbers-webapp"],  # Убираем первый символ '/' из пути
+        webhook_url=WEBHOOK_URL,
+    )
 
 if __name__ == '__main__':
     main()
