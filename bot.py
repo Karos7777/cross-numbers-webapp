@@ -5,7 +5,6 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.utils.executor import start_webhook
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 import asyncio
@@ -113,14 +112,16 @@ async def on_startup():
 async def on_shutdown():
     await bot.delete_webhook()
 
+# Инициализация FastAPI приложения
+app = FastAPI()
+
+@app.post(WEBHOOK_PATH)
+async def webhook_handler(request: Request):
+    update = await request.json()
+    telegram_update = types.Update(**update)
+    await dp.process_update(telegram_update)
+    return {"ok": True}
+
 if __name__ == '__main__':
-    from aiogram import executor
-    executor.start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
-        host='0.0.0.0',
-        port=8000,
-    )
+    import uvicorn
+    uvicorn.run(app, host='0.0.0.0', port=8000)
