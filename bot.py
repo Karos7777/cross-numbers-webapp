@@ -5,7 +5,6 @@ import nest_asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from fastapi import FastAPI, Request
-from aiogram import Bot, Dispatcher, types
 from contextlib import asynccontextmanager
 import asyncio
 
@@ -15,14 +14,15 @@ nest_asyncio.apply()
 # Замените на ваш токен
 BOT_TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
 WEBHOOK_PATH = '/webhook'
-WEBHOOK_URL = 'https://karos7777.github.io/cross-numbers-webapp/' + WEBHOOK_PATH
+WEBHOOK_URL = 'https://karos7777.github.io/cross-numbers-webapp/' + WEBHOOK_PATH  # Замените на ваш домен
 
-# Инициализация FastAPI приложения
 app = FastAPI()
 
-# Инициализация бота и диспетчера
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+# Настройка логирования
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 # Инициализация базы данных
 async def init_db():
@@ -35,37 +35,6 @@ async def init_db():
             )
         ''')
         await db.commit()
-
-# Закрытие базы данных (если требуется)
-async def close_db():
-    pass  # Добавьте код для закрытия базы данных, если это необходимо
-
-# Определение жизненного цикла приложения
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Код, выполняемый при запуске приложения
-    await init_db()
-    await bot.set_webhook(WEBHOOK_URL)
-    yield
-    # Код, выполняемый при завершении работы приложения
-    await bot.delete_webhook()
-    await close_db()
-
-# Применение жизненного цикла к приложению
-app = FastAPI(lifespan=lifespan)
-
-# Обработчик вебхука
-@app.post(WEBHOOK_PATH)
-async def webhook_handler(request: Request):
-    update = types.Update(**await request.json())
-    await dp.process_update(update)
-    return {"ok": True}
-
-# Настройка логирования
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
 
 # Функция для добавления очков пользователю
 async def add_points(user_id, points):
@@ -117,6 +86,8 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Основная функция
 async def main():
+    await init_db()
+
     application = Application.builder().token(BOT_TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
@@ -127,5 +98,4 @@ async def main():
     await application.run_polling()
 
 if __name__ == '__main__':
-    import uvicorn
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    asyncio.run(main())
