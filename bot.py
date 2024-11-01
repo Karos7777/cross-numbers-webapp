@@ -1,8 +1,12 @@
 import logging
 import json
 import aiosqlite
+import nest_asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+
+# Применение nest_asyncio для предотвращения ошибок с циклом событий
+nest_asyncio.apply()
 
 # Замените на ваш токен
 BOT_TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
