@@ -11,7 +11,8 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш новый токен
+# Замените на ваш новый токен и храните его безопасно
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
 
 user_scores = {}  # Хранение очков пользователей
 
@@ -87,7 +88,7 @@ async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # Начисляем очки пользователю
             new_score = update_score(user_id, 100)
             logging.debug(f"New score for user {user_id}: {new_score}")
-            await update.message.reply_text(f"Отличная работа! Вы получили 100 очков. Ваш общий счет: {new_score}")
+            await update.message.reply_text(f"Отличная работа! Вы получили 100 очков. Ваш общий счёт: {new_score}")
         else:
             logging.debug(f"Unknown action: {action}")
     except json.JSONDecodeError as e:
@@ -98,7 +99,7 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     current_score = get_user_score(user_id)
     logging.debug(f"User {user_id} requested their score: {current_score}")
-    await update.message.reply_text(f"Ваш общий счет: {current_score}")
+    await update.message.reply_text(f"Ваш общий счёт: {current_score}")
 
 # Добавляем функцию echo
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -117,7 +118,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     # Настраиваем вебхук
-    WEBHOOK_HOST = 'https://09f6-82-115-61-199.ngrok-free.app'  # Замените на ваш ngrok URL
+    WEBHOOK_HOST = 'https://d21a-82-115-61-199.ngrok-free.app'  # Замените на ваш ngrok URL
     WEBHOOK_PATH = '/webhook'
     WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
