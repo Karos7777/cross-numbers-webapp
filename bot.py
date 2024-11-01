@@ -9,6 +9,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 from fastapi import FastAPI, Request
 from aiogram import Bot, Dispatcher, types
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from contextlib import asynccontextmanager
 import asyncio
 
 # Применение nest_asyncio для предотвращения ошибок с циклом событий
@@ -22,6 +23,16 @@ WEBHOOK_URL = 'https://karos7777.github.io/cross-numbers-webapp/' + WEBHOOK_PATH
 app = FastAPI()
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Код, выполняемый при запуске приложения
+    await init_db()
+    yield
+    # Код, выполняемый при завершении работы приложения
+    await close_db()
+
+app = FastAPI(lifespan=lifespan)
 
 @app.on_event("startup")
 async def on_startup():
