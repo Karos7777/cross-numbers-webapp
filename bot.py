@@ -6,12 +6,41 @@ import logging
 import sqlite3
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from fastapi import FastAPI, Request
+from aiogram import Bot, Dispatcher, types
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+import asyncio
 
 # Применение nest_asyncio для предотвращения ошибок с циклом событий
 nest_asyncio.apply()
 
 # Замените на ваш токен
 BOT_TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
+WEBHOOK_PATH = '/webhook'
+WEBHOOK_URL = 'https://karos7777.github.io/cross-numbers-webapp/' + WEBHOOK_PATH
+
+app = FastAPI()
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher()
+
+@app.on_event("startup")
+async def on_startup():
+    await bot.set_webhook(WEBHOOK_URL)
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    await bot.delete_webhook()
+
+@app.post(WEBHOOK_PATH)
+async def webhook_handler(request: Request):
+    update = types.Update(**await request.json())
+    await dp.process_update(update)
+    return {"ok": True}
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host='0.0.0.0', port=8000)
+
 
 # Настройка логирования
 logging.basicConfig(
