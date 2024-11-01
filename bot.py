@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-TOKEN = 'YOUR_NEW_TELEGRAM_BOT_TOKEN'  # Замените на ваш новый токен
+TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'  # Замените на ваш новый токен
 
 user_scores = {}  # Хранение очков пользователей
 
