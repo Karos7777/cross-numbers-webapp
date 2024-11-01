@@ -20,7 +20,7 @@ WEBHOOK_PATH = '/webhook'
 WEBHOOK_URL = 'https://karos7777.github.io/cross-numbers-webapp/' + WEBHOOK_PATH
 
 app = FastAPI()
-bot = Bot(token=API_TOKEN)
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 @app.on_event("startup")
