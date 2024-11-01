@@ -4,6 +4,8 @@ from telegram.ext import filters
 import json
 import os
 import logging
+import sqlite3
+import telebot
 
 # Настройка ведения журнала
 logging.basicConfig(
@@ -15,6 +17,19 @@ logging.basicConfig(
 TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
 bot = telebot.TeleBot(BOT_TOKEN)
 
+conn = sqlite3.connect('database.db', check_same_thread=False)
+cursor = conn.cursor()
+
+# Создание таблицы пользователей
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    username TEXT,
+    points INTEGER
+)
+''')
+conn.commit()
+
 user_scores = {}  # Хранение очков пользователей
 
 # Объявляем абсолютный путь к файлу данных
@@ -24,6 +39,13 @@ DATA_FILE = os.path.join(BASE_DIR, 'user_scores.json')
 import json  # Убедитесь, что у вас импортирован json
 
 # Другой код бота, ваши команды, обработчики и т.д.
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    cursor.execute('INSERT INTO users (id, username, points) VALUES (?, ?, ?)',
+                   (message.from_user.id, message.from_user.username, 0))
+    conn.commit()
+    bot.reply_to(message, "Добро пожаловать! Вы зарегистрированы.")
 
 @bot.message_handler(content_types=['web_app_data'])
 def web_app_data_handler(message):
