@@ -118,7 +118,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     # Настраиваем вебхук
-    WEBHOOK_HOST = 'https://d21a-82-115-61-199.ngrok-free.app'  # Замените на ваш ngrok URL
+    WEBHOOK_HOST = 'https://2cbc-82-115-61-199.ngrok-free.app'  # Замените на ваш ngrok URL
     WEBHOOK_PATH = '/webhook'
     WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
