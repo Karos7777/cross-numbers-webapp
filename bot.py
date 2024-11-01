@@ -13,6 +13,7 @@ logging.basicConfig(
 
 # Замените на ваш новый токен и храните его безопасно
 TOKEN = '7211622201:AAH6uicWDk-pyBRpXdHa1oPDjX0pu6pnLaw'
+bot = telebot.TeleBot(BOT_TOKEN)
 
 user_scores = {}  # Хранение очков пользователей
 
